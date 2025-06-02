@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Transcript Downloader</title>
+  <style>
+    body { font-family: Arial, sans-serif; min-width: 250px; padding: 16px; }
+    label { display: block; margin-bottom: 8px; }
+    input[type="text"] { width: 100%; margin-bottom: 12px; }
+    .toggle { margin-bottom: 12px; }
+    button { width: 100%; padding: 8px; background: #ff9800; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    button:disabled { background: #ccc; }
+  </style>
+</head>
+<body>
+  <label class="toggle">
+    <input type="checkbox" id="summarizeToggle"> Enable Summarization
+  </label>
+  <label>
+    Ollama Model:
+    <input type="text" id="modelInput" value="llama3.2:1b">
+  </label>
+  <button id="downloadBtn">Download Transcript</button>
+  <script src="popup.js"></script>
+</body>
+</html> 

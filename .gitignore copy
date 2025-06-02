@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+ENV/
+
+# Node/JS/Chrome Extension
+node_modules/
+*.log
+
+# System/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Misc
+*.swp
+*.swo
+
+# Do not ignore extension assets or source code
+!/chrome_extension/MinimalDevopsLogo.png
+!/chrome_extension/background.js
+!/chrome_extension/manifest.json
+!/chrome_extension/popup.html
+!/chrome_extension/popup.js
+!/chrome_extension/icon.png 

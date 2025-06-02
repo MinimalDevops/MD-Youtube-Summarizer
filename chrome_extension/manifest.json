@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "MD Youtube Summarizer",
+  "version": "1.0",
+  "description": "Download and summarize YouTube video transcripts using a local Python backend and Ollama.",
+  "permissions": ["scripting", "activeTab", "downloads", "notifications"],
+  "host_permissions": ["*://*.youtube.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Download Transcript",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "MinimalDevopsLogo.png",
+    "48": "MinimalDevopsLogo.png",
+    "128": "MinimalDevopsLogo.png"
+  }
+} 

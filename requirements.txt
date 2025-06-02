@@ -1,0 +1,8 @@
+flask
+flask-cors
+fpdf==1.7.2
+imageio-ffmpeg==0.5.1
+numpy<2
+torch==2.2.2
+yt-dlp==2024.10.7
+openai-whisper
