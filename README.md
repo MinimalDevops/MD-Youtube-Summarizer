@@ -76,4 +76,5 @@ python transcript_server.py
 - More advanced summary options (e.g., bullet points, custom length).
 
 ## License
-MIT 
+
+This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute it as you wish.
