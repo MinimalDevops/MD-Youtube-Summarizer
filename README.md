@@ -2,6 +2,8 @@
 
 A Chrome extension to download and summarize YouTube video (and Shorts) transcripts using a local Python backend and Ollama for AI-powered summarization.
 
+Read the blog here -> [Chrome Extension with Local LLMs: Build Your Own YouTube Transcript Summarizer](https://medium.com/@minimaldevops/chrome-extensions-with-local-llms-build-your-own-youtube-transcript-summarizer-ba40141becd9)
+
 ## Features
 - Download transcripts from YouTube videos and Shorts with one click
 - Optional AI-powered summarization using Ollama (local LLM)
