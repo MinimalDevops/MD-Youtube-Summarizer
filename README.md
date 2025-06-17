@@ -1,6 +1,6 @@
 # MD Youtube Summarizer
 
-A Chrome extension to download and summarize YouTube video (and Shorts) transcripts using a local Python backend and Ollama for AI-powered summarization.
+A Chrome extension to download and summarize YouTube video (and Shorts) transcripts using a local Python backend and Ollama for AI-powered summarization. **Now supports Instagram Reels and videos!**
 
 Read the blog here -> [Chrome Extension with Local LLMs: Build Your Own YouTube Transcript Summarizer](https://medium.com/@minimaldevops/chrome-extensions-with-local-llms-build-your-own-youtube-transcript-summarizer-ba40141becd9)
 
@@ -83,7 +83,7 @@ This project is licensed under the [MIT License](LICENSE). You are free to use, 
 A Chrome extension to download and summarize YouTube video (and Shorts) transcripts using a local Python backend and Ollama for AI-powered summarization.
 
 ## Features
-- Download transcripts from YouTube videos and Shorts with one click
+- Download transcripts from YouTube videos, Shorts, and Instagram Reels with one click
 - Optional AI-powered summarization using Ollama (local LLM)
 - Customizable model selection for summarization
 - Clean, modern popup UI
@@ -92,6 +92,7 @@ A Chrome extension to download and summarize YouTube video (and Shorts) transcri
 - Python 3.8+
 - Chrome browser
 - [Ollama](https://ollama.com/) installed and running locally (for summarization)
+- [chromedriver](https://sites.google.com/chromium.org/driver/) (must match your Chrome version)
 
 ## Setup
 
@@ -106,19 +107,24 @@ cd <your-repo-directory>
 pip install -r requirements.txt
 ```
 
-### 3. Start the backend server
+### 3. Download and Install Chromedriver
+- Download the correct version of [chromedriver](https://sites.google.com/chromium.org/driver/) for your Chrome browser.
+- Place the `chromedriver` executable in your project directory or ensure it is in your system PATH.
+- Make sure the version matches your installed Chrome browser version.
+
+### 4. Start the backend server
 ```
 python transcript_server.py
 ```
 
-### 4. Load the Chrome extension
+### 5. Load the Chrome extension
 - Go to `chrome://extensions`
 - Enable **Developer mode**
 - Click **Load unpacked**
 - Select the `chrome_extension` folder
 
 ## Usage
-1. Go to any YouTube video or Shorts page.
+1. Go to any YouTube video, Shorts, or Instagram Reel page.
 2. Click the **MD Youtube Summarizer** extension icon.
 3. (Optional) Enable summarization and choose your Ollama model.
 4. Click **Download Transcript**.
@@ -137,8 +143,10 @@ python transcript_server.py
 ## Notes
 - Summarization requires [Ollama](https://ollama.com/) to be installed and running locally.
 - The backend must be running for the extension to work.
-- The extension works for both regular YouTube videos and Shorts.
+- The extension works for YouTube videos, Shorts, and Instagram Reels (public content only).
 - **Summary size is limited by the model and Ollama's input constraints.** Very large transcripts may be truncated or fail to summarize.
+- **Chromedriver** is required for some video download operations. Ensure it matches your Chrome version.
+- Instagram Reels must be public and accessible to yt-dlp for download.
 
 ## Future Improvements
 - Support for summarization using OpenRouter, OpenAI, or other cloud APIs in addition to Ollama.

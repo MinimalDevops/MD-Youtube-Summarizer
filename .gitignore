@@ -64,3 +64,5 @@ Thumbs.db
 !/chrome_extension/popup.html
 !/chrome_extension/popup.js
 !/chrome_extension/icon.png 
+
+.envrc

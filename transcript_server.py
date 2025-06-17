@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
-from streamlit_youtube_transcription_updated import convert_shorts_url, download_audio, transcribe_audio
+from media_transcription_utils import convert_shorts_url, download_audio, transcribe_audio
 import os
 import tempfile
 import subprocess
@@ -16,7 +16,7 @@ def get_transcript():
         return jsonify({'error': 'No URL provided'}), 400
     # Convert Shorts URL to standard URL if needed
     youtube_url = convert_shorts_url(url)
-    # Download audio from YouTube
+    # Download audio from YouTube or Instagram
     audio_path, sanitized_title = download_audio(youtube_url)
     if not audio_path:
         return jsonify({'error': 'Failed to download audio'}), 500

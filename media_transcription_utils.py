@@ -90,5 +90,4 @@ def create_pdf(transcription, pdf_path):
         os.makedirs(os.path.dirname(pdf_path))
     pdf.output(pdf_path)
     print(f"PDF created at {pdf_path}")
-    return pdf_path
-
+    return pdf_path 

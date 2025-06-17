@@ -8,15 +8,18 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
   chrome.tabs.query({active: true, currentWindow: true}, async (tabs) => {
     const tab = tabs[0];
     const tabUrl = tab.url;
-    function isYouTubeVideoUrl(url) {
-      return url && (url.includes("youtube.com/watch") || url.includes("youtube.com/shorts"));
+    function isSupportedVideoUrl(url) {
+      return (
+        (url.includes("youtube.com/watch") || url.includes("youtube.com/shorts")) ||
+        url.includes("instagram.com/reel/")
+      );
     }
-    if (!isYouTubeVideoUrl(tabUrl)) {
+    if (!isSupportedVideoUrl(tabUrl)) {
       chrome.notifications?.create({
         type: 'basic',
         iconUrl: 'MinimalDevopsLogo.png',
         title: 'Transcript Error',
-        message: 'Not a YouTube video or Shorts page!'
+        message: 'Not a supported video page!'
       });
       document.getElementById('downloadBtn').disabled = false;
       document.getElementById('downloadBtn').innerText = 'Download Transcript';
