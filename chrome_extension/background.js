@@ -3,7 +3,7 @@ chrome.action.onClicked.addListener((tab) => {
     // Prevent duplicate downloads by disabling the action temporarily
     if (chrome.action._downloading) return;
     chrome.action._downloading = true;
-    fetch(`http://localhost:5001/transcript?url=${encodeURIComponent(tab.url)}`)
+    fetch(`http://localhost:5003/transcript?url=${encodeURIComponent(tab.url)}`)
       .then(response => response.json())
       .then(data => {
         if (data.transcript) {
@@ -88,7 +88,7 @@ async function handleTranscriptDownload(tabUrl, summarize, model) {
   }
   try {
     console.log('Fetching transcript for:', tabUrl);
-    const res = await fetch(`http://localhost:5001/transcript?url=${encodeURIComponent(tabUrl)}`);
+    const res = await fetch(`http://localhost:5003/transcript?url=${encodeURIComponent(tabUrl)}`);
     console.log('Transcript fetch response:', res);
     const data = await res.json();
     console.log('Transcript data:', data);
@@ -111,7 +111,7 @@ async function handleTranscriptDownload(tabUrl, summarize, model) {
     if (summarize) {
       // Send transcript and model to backend for summarization
       console.log('Requesting summary for model:', model);
-      const summaryRes = await fetch('http://localhost:5001/summarize', {
+      const summaryRes = await fetch('http://localhost:5003/summarize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: data.transcript, model })

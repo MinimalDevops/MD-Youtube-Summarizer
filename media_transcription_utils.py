@@ -34,7 +34,7 @@ def download_audio(youtube_url, output_path="audio.mp3"):
                 'preferredquality': '192',
             }],
             'nocheckcertificate': True,  # Bypass SSL certificate verification
-            'ffmpeg_location': ffmpeg.get_ffmpeg_exe(),  # Provide ffmpeg location from imageio_ffmpeg
+            'ffmpeg_location': '/opt/homebrew/bin/ffmpeg',  # Use system ffmpeg
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(youtube_url, download=False)
@@ -55,7 +55,7 @@ def transcribe_audio(audio_path):
     try:
         print("Attempting to transcribe audio using Whisper...")
         # Add ffmpeg to PATH
-        ffmpeg_path = ffmpeg.get_ffmpeg_exe()
+        ffmpeg_path = '/opt/homebrew/bin/ffmpeg'
         print(f"Using ffmpeg located at: {ffmpeg_path}")
         os.environ["PATH"] += os.pathsep + os.path.dirname(ffmpeg_path)
         os.environ["FFMPEG_BINARY"] = ffmpeg_path  # Set FFMPEG_BINARY environment variable explicitly
