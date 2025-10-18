@@ -8,7 +8,9 @@ module.exports = {
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: '1G',
+      max_memory_restart: '4G',
+      min_uptime: '10s',
+      max_restarts: 5,
       env: {
         NODE_ENV: 'production',
         FLASK_ENV: 'production',

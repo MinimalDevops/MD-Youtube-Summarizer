@@ -26,7 +26,7 @@ def download_audio(youtube_url, output_path="audio.mp3"):
         if os.path.exists(output_path):
             os.remove(output_path)
         ydl_opts = {
-            'format': 'bestaudio/best',
+            'format': 'worst[ext=m4a]/worst[ext=webm]/worst/best',
             'outtmpl': output_path.replace('.mp3', '') + '.%(ext)s',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
@@ -35,11 +35,29 @@ def download_audio(youtube_url, output_path="audio.mp3"):
             }],
             'nocheckcertificate': True,  # Bypass SSL certificate verification
             'ffmpeg_location': '/opt/homebrew/bin/ffmpeg',  # Use system ffmpeg
+            'extract_flat': False,  # Ensure we extract the actual media
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+            },
+            'sleep_interval': 1,  # Add delay between requests
+            'max_sleep_interval': 5,  # Maximum sleep time
+            'socket_timeout': 30,  # Increase timeout
+            'retries': 3,  # Retry failed downloads
+            'fragment_retries': 3,  # Retry failed fragments
+            'ignoreerrors': False,  # Don't ignore errors
+            'no_warnings': False,  # Show warnings
+            'extractor_retries': 3,  # Retry extractor failures
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(youtube_url, download=False)
             video_title = info_dict.get('title', 'video')
-            sanitized_title = re.sub(r'[\\/*?\"<>|]', "", video_title)  # Remove invalid characters
+            sanitized_title = re.sub(r'[\\/*?\"<>|:…]', "", video_title)  # Remove invalid characters including colon and ellipsis
             ydl_opts['outtmpl'] = f"{sanitized_title}.%(ext)s"
             with yt_dlp.YoutubeDL(ydl_opts) as ydl_inner:
                 ydl_inner.download([youtube_url])
@@ -49,36 +67,20 @@ def download_audio(youtube_url, output_path="audio.mp3"):
         print(f"An error occurred while downloading audio: {e}")
         return None, None
 
-# Function to transcribe audio using whisper
+# Function to transcribe audio using whisper (ultra-simplified version)
 def transcribe_audio(audio_path):
-    wav_path = None
     try:
-        print("Attempting to transcribe audio using Whisper...")
-        # Add ffmpeg to PATH
-        ffmpeg_path = '/opt/homebrew/bin/ffmpeg'
-        print(f"Using ffmpeg located at: {ffmpeg_path}")
-        os.environ["PATH"] += os.pathsep + os.path.dirname(ffmpeg_path)
-        os.environ["FFMPEG_BINARY"] = ffmpeg_path  # Set FFMPEG_BINARY environment variable explicitly
-        # Convert audio to WAV format to ensure compatibility
-        wav_path = audio_path.replace('.mp3', '.wav')
-        if os.path.exists(wav_path):
-            os.remove(wav_path)
-        subprocess.run([ffmpeg_path, "-i", audio_path, wav_path], check=True)
-        # Load whisper model
-        model = whisper.load_model("base")
-        # Transcribe audio
-        result = model.transcribe(wav_path, fp16=False)  # Ensure FP16 is not used on CPU
-        # print("Transcription:")
-        # print(result["text"])
+        # Set ffmpeg path
+        os.environ["FFMPEG_BINARY"] = '/opt/homebrew/bin/ffmpeg'
+        
+        # Load whisper model and transcribe
+        model = whisper.load_model("tiny")
+        result = model.transcribe(audio_path)
+        
         return result["text"]
     except Exception as e:
-        print(f"An error occurred during transcription: {e}")
+        print(f"Transcription error: {e}")
         return None
-    finally:
-        if os.path.exists(audio_path):
-            os.remove(audio_path)
-        if wav_path and os.path.exists(wav_path):
-            os.remove(wav_path)
 
 # Function to create a PDF from transcribed text
 def create_pdf(transcription, pdf_path):
