@@ -1,18 +1,25 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
-from media_transcription_utils import convert_shorts_url, download_audio, transcribe_audio
+from media_transcription_utils import convert_shorts_url, download_audio
 import os
 import tempfile
 import subprocess
 import threading
 import time
+import whisper
 
 app = Flask(__name__)
 CORS(app)
 
 # Global dictionary to store transcription status
 transcription_status = {}
+
+# Pre-load Whisper model at startup (much faster than loading on each request)
+print("Loading Whisper model at startup...")
+WHISPER_MODEL = whisper.load_model("tiny")
+os.environ["FFMPEG_BINARY"] = '/opt/homebrew/bin/ffmpeg'
+print("Whisper model loaded successfully!")
 
 def cleanup_old_transcriptions():
     """Clean up old transcription statuses to prevent memory leaks"""
@@ -26,7 +33,7 @@ def cleanup_old_transcriptions():
         del transcription_status[url]
 
 def transcribe_audio_async(url, audio_path, sanitized_title):
-    """Transcribe audio in a separate thread"""
+    """Transcribe audio in a separate thread with cleanup"""
     try:
         print(f"Starting transcription for: {sanitized_title}")
         transcription_status[url] = {
@@ -35,8 +42,9 @@ def transcribe_audio_async(url, audio_path, sanitized_title):
             'timestamp': time.time()
         }
         
-        # Transcribe the downloaded audio (simplified approach)
-        transcription = transcribe_audio(audio_path)
+        # Transcribe the downloaded audio using pre-loaded model (much faster!)
+        result = WHISPER_MODEL.transcribe(audio_path)
+        transcription = result["text"]
         
         if transcription:
             transcription_status[url] = {
@@ -47,12 +55,36 @@ def transcribe_audio_async(url, audio_path, sanitized_title):
                 'timestamp': time.time()
             }
             print(f"Transcription completed for: {sanitized_title}")
+            
+            # Clean up audio files after successful transcription
+            try:
+                if os.path.exists(audio_path):
+                    os.remove(audio_path)
+                    print(f"Cleaned up audio file: {audio_path}")
+            except Exception as cleanup_error:
+                print(f"Warning: Could not clean up audio file {audio_path}: {cleanup_error}")
         else:
             transcription_status[url] = {'status': 'error', 'error': 'Failed to transcribe audio'}
             print(f"Transcription failed for: {sanitized_title}")
+            
+            # Clean up audio files even on failure
+            try:
+                if os.path.exists(audio_path):
+                    os.remove(audio_path)
+                    print(f"Cleaned up failed audio file: {audio_path}")
+            except Exception as cleanup_error:
+                print(f"Warning: Could not clean up failed audio file {audio_path}: {cleanup_error}")
     except Exception as e:
         transcription_status[url] = {'status': 'error', 'error': str(e)}
         print(f"Transcription error for {sanitized_title}: {e}")
+        
+        # Clean up audio files on error
+        try:
+            if os.path.exists(audio_path):
+                os.remove(audio_path)
+                print(f"Cleaned up audio file after error: {audio_path}")
+        except Exception as cleanup_error:
+            print(f"Warning: Could not clean up audio file {audio_path}: {cleanup_error}")
 
 @app.route('/transcript', methods=['GET'])
 def get_transcript():
@@ -94,58 +126,17 @@ def get_transcript():
             transcription_status[url] = {'status': 'error', 'error': 'Failed to download audio'}
             return jsonify({'error': 'Failed to download audio'}), 500
         
-        # Start transcription synchronously (not in a separate thread)
-        try:
-            print(f"Starting transcription for: {sanitized_title}")
-            transcription_status[url] = {
-                'status': 'transcribing', 
-                'progress': 'Processing audio with Whisper...',
-                'timestamp': time.time()
-            }
-            
-            # Transcribe the downloaded audio directly
-            transcription = transcribe_audio(audio_path)
-            
-            if transcription:
-                transcription_status[url] = {
-                    'status': 'completed', 
-                    'transcript': transcription, 
-                    'title': sanitized_title,
-                    'progress': 'Transcription completed!',
-                    'timestamp': time.time()
-                }
-                print(f"Transcription completed for: {sanitized_title}")
-                
-                # Clean up audio files after successful transcription
-                try:
-                    if os.path.exists(audio_path):
-                        os.remove(audio_path)
-                        print(f"Cleaned up audio file: {audio_path}")
-                except Exception as cleanup_error:
-                    print(f"Warning: Could not clean up audio file {audio_path}: {cleanup_error}")
-                
-                return jsonify({
-                    'transcript': transcription, 
-                    'title': sanitized_title,
-                    'status': 'completed'
-                })
-            else:
-                transcription_status[url] = {'status': 'error', 'error': 'Failed to transcribe audio'}
-                print(f"Transcription failed for: {sanitized_title}")
-                
-                # Clean up audio files even on failure
-                try:
-                    if os.path.exists(audio_path):
-                        os.remove(audio_path)
-                        print(f"Cleaned up failed audio file: {audio_path}")
-                except Exception as cleanup_error:
-                    print(f"Warning: Could not clean up failed audio file {audio_path}: {cleanup_error}")
-                
-                return jsonify({'error': 'Failed to transcribe audio'}), 500
-        except Exception as e:
-            transcription_status[url] = {'status': 'error', 'error': str(e)}
-            print(f"Transcription error for {sanitized_title}: {e}")
-            return jsonify({'error': str(e)}), 500
+        # Start transcription in a separate thread (non-blocking)
+        thread = threading.Thread(target=transcribe_audio_async, args=(url, audio_path, sanitized_title))
+        thread.daemon = True
+        thread.start()
+        
+        return jsonify({
+            'status': 'processing',
+            'progress': 'Audio downloaded. Starting transcription...',
+            'message': 'Transcription started. This may take several minutes for long videos.',
+            'title': sanitized_title
+        })
         
     except Exception as e:
         transcription_status[url] = {'status': 'error', 'error': str(e)}

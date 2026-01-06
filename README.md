@@ -179,6 +179,13 @@ MD-Youtube-Summarizer/
 - More advanced summary options (e.g., bullet points, custom length).
 - Docker containerization for easier deployment.
 
+## N8N Workflow (optional)
+- The extension can trigger an n8n webhook for transcripts. Configure the webhook URL in `chrome_extension/config.js` under `n8nWebhookUrl`.
+- In the popup UI, the **Use N8N workflow** checkbox is enabled by default. Disable it to fall back to the local Whisper backend.
+- N8N responses: If your webhook returns a file/binary with `Content-Disposition: attachment; filename="..."`, the extension will download using that filename; JSON responses should include `transcript` (and optional `title`).
+- N8N timeout: the extension waits up to 5 minutes for the n8n response; longer runs will abort client-side.
+- To avoid committing secrets/endpoints, keep your real `n8nWebhookUrl` only in your local `chrome_extension/config.js` and commit a placeholder or example file instead.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute it as you wish.

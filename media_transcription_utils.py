@@ -68,13 +68,16 @@ def download_audio(youtube_url, output_path="audio.mp3"):
         return None, None
 
 # Function to transcribe audio using whisper (ultra-simplified version)
-def transcribe_audio(audio_path):
+# Note: This function is kept for backward compatibility, but the model should be pre-loaded
+# in the main application for better performance
+def transcribe_audio(audio_path, model=None):
     try:
         # Set ffmpeg path
         os.environ["FFMPEG_BINARY"] = '/opt/homebrew/bin/ffmpeg'
         
-        # Load whisper model and transcribe
-        model = whisper.load_model("tiny")
+        # Use provided model or load one (should be pre-loaded for performance)
+        if model is None:
+            model = whisper.load_model("tiny")
         result = model.transcribe(audio_path)
         
         return result["text"]

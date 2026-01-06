@@ -4,7 +4,11 @@
   "version": "1.0",
   "description": "Download and summarize YouTube video transcripts using a local Python backend and Ollama.",
   "permissions": ["scripting", "activeTab", "downloads", "notifications"],
-  "host_permissions": ["*://*.youtube.com/*"],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "http://localhost:5003/*",
+    "https://*.tapindersingh.click/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
